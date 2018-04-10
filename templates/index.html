@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qiscus Call Agent</title>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  <style>
+  body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .form-signin {
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+  }
+  .form-signin .form-signin-heading {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .form-signin .form-control {
+    height: auto;
+    padding: 10px;
+    position: relative;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-size: 16px;
+  }
+  .form-signin .form-control:focus {
+    z-index: 2;
+  }
+  </style>
+</head>
+
+<body class="main-wrapper">
+  <div class="container">
+    <form class="form-signin" method="POST" action="/app">
+      <h2 class="form-signin-heading">Sign-in As</h2>
+      <div class="form-group">
+        <label for="inputUserId">UserID</label>
+        <input type="text" id="inputUserId" class="form-control" name="userId" required autofocus pattern="[a-zA-Z0-9]+">
+        <span class="help-block">Only contains alphanumeric without any special character.</span>
+      </div>
+      <div class="form-group">
+        <label for="inputUserName">Name</label>
+        <input type="text" id="inputUserName" class="form-control" name="userName" required>
+      </div>
+      <p>
+        <input type="submit" class="btn btn-lg btn-primary btn-block" value="Enter">
+      </p>
+    </form>
+  </div>
+</body>
+
+</html>
+
