@@ -1,6 +1,6 @@
-"use strict";
+module.exports = QiscusCallRouter;
 
-require('socket.io-client');
+var io = require('socket.io-client');
 require('webrtc-adapter');
 
 /* Qiscus Call Signaling Hub
@@ -74,9 +74,29 @@ QiscusCallRouter.prototype.startCall = function(room) {
   };
   router.qiscuscall.onPeerClosed = function(id) {
     if (id == rem_id) {
+      stopMediaTracks();
       router.onCallClosed(id);
     }
   };
+
+  function stopMediaTracks() {
+    var MediaStream = window.MediaStream;
+
+    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+      MediaStream = webkitMediaStream;
+    }
+
+    if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+      MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+          track.stop();
+        });
+        this.getVideoTracks().forEach(function(track) {
+          track.stop();
+        });
+      };
+    }
+  }
 };
 
 QiscusCallRouter.prototype.onConnect = function(user) {};
