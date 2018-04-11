@@ -50,17 +50,26 @@
               </li>
             </ul>
           </div>
-          <ul class="list-group" id="contact-list" style="display:none;">
+          <ul class="list-group" id="contact-list">
           </ul>
         </div>
       </div>
-      <div class="col-md-8 col-sm-6 col-xs-12">
+      <div class="col-md-4 col-sm-6 col-xs-12">
         <div class="panel panel-default">
           <div class="panel-heading">
             <span class="title">Client Video</span>
           </div>
           <video id="remote-video" autoplay></video>
           <video id="local-video" style="display:none;" autoplay></video>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 col-xs-12 hidden-sm hidden-xs">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <span class="title">Call History</span>
+          </div>
+          <ul class="list-group" id="history-list">
+          </ul>
         </div>
       </div>
     </div>
@@ -102,20 +111,6 @@
       $('#my-name').text(myname);
     });
 
-    socket.on('response', function(text) {
-      var obj = JSON.parse(text);
-      console.log(obj);
-      switch(obj.event) {
-        case 'register':
-          if (obj.success) {
-            $('#contact-list').show();
-          } else {
-            setTimeout(register, 2000);
-          }
-          break;
-        default: break;
-      }
-    });
     socket.on('call', function(text) {
       var obj = JSON.parse(text);
       myroom = obj.room;
