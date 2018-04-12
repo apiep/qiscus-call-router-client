@@ -50,7 +50,7 @@ Please contact us to get this AppId and AppToken.
 To see how call router works, you can try our sample application [here](https://github.com/qiscus/qiscus-call-router-client/tree/master/sample). It contains simple UI and back-end integration sample.
 
 ## Demo
-You also can try call router demo [here](https://qiscus-call-router.herokuapp,com).
+You also can try call router demo [here](https://qiscus-call-router.herokuapp.com).
 
 ### Demo Instruction
 1. Open call router demo page.
