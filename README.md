@@ -46,6 +46,37 @@ router.setCallCredential('your-call-app-id', 'your-call-app-token');
 
 Please contact us to get this AppId and AppToken.
 
+## Methods and Events
+### `var router = new QiscusCallRouter('your-api-key')`
+Initialization method.
+
+### `router.setCallCredential('your-call-app-id', 'your-call-app-token')`
+Set Call SDK credential.
+
+### `router.enableVideo(boolean)`
+Enable video for agent.
+
+### `router.enableRecording(boolean)`
+Enable call recording.
+
+### `router.on('connect', function(user) {})`
+This events will be fired when agent successfully connected to call router. It gives user object that contains `userId`, `userName`, and `userAvatar`.
+
+### `router.on('call', function(roomId, agent) {})`
+This events will be fired when there is incoming call for agent. It gives `roomId` for call session and agent object that contains `agentId`, `agentName`, and `agentAvatar`.
+
+### `router.on('callLocalStream', function(mediastream) {})`
+This events will be fired when successfully get local media (audio / video) from webcam or microphone. It gives `mediastream` object.
+
+### `router.on('callRemoteStream', function(remoteId, mediastream) {})`
+This events will be fired when successfully get remote media (audio / video) from call participant. It gives `remoteId` as identifier and `mediastream` object.
+
+### `router.on('callClosed', function(remoteId) {})`
+This events will be fired when call ended. It gives `remoteId` as identifier.
+
+### `router.on('disconnect', function() {})`
+This events will be fired when agent successfully disconnected from call router.
+
 ## Sample Application
 To see how call router works, you can try our sample application [here](https://github.com/qiscus/qiscus-call-router-client/tree/master/sample). It contains simple UI and back-end integration sample.
 
