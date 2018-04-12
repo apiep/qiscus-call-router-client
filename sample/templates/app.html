@@ -78,46 +78,30 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.10.0/js/md5.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.1.5/adapter.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/simple-peer/9.0.0/simplepeer.min.js"></script>
   <script src="//rawgit.com/qiscus/qiscus-call-sdk-web/master/src/qiscus-call-sdk.js"></script>
+  <script src="/assets/qiscus-call-router.min.js"></script>
   <script>
   var myuser = null;
   var myname = null;
   var myroom = null;
-  var qiscuscall = null;
+  var router = null;
 
   $(function() {
-    var socket = io('https://rtc-api.qiscus.com/queue-agent', {
-      forceNew: false,
-      query: { apiKey: '<?= $API_KEY; ?>' }
-    });
-
-    var loop = 0;
-    var ringing = new Audio('/assets/ringtone/ringtone.mp3');
-    ringing.addEventListener('ended', function() {
-      if (loop++ < 5) {
-        ringing.play();
-      } else {
-        //
-      }
-    });
-
-    socket.on('onconnect', function(message) {
-      myuser = message.data.userId;
-      myname = message.data.userName;
+    router = new QiscusCallRouter('<?= $API_KEY; ?>');
+    router.setCallCredential('<?= $CALL_SDK_APP_ID; ?>', '<?= $CALL_SDK_APP_TOKEN; ?>');
+    router.onConnect = function(user) {
+      myuser = user.userId;
+      myname = user.userName;
       $('#my-name').text(myname);
-    });
-
-    socket.on('call', function(text) {
-      var obj = JSON.parse(text);
-      myroom = obj.room;
+    };
+    router.onCall = function(room, target) {
+      myroom = room;
       ringing.play();
       var dialog = bootbox.dialog({
         title: 'Incoming call',
-        message: '<center><img src="https://www.gravatar.com/avatar/' + md5(obj.caller.callerId) + '" alt="' + obj.caller.callerName + '" class="img-responsive img-circle"><h3>' + obj.caller.callerName + ' is calling...</h3></center>',
+        message: '<center><img src="https://www.gravatar.com/avatar/' + md5(target.callerId) + '" alt="' + target.callerName + '" class="img-responsive img-circle"><h3>' + target.callerName + ' is calling...</h3></center>',
         buttons: {
           cancel: {
             label: 'Reject',
@@ -132,42 +116,41 @@
             className: 'btn-success',
             callback: function() {
               ringing.pause();
-              startVideoCall();
+              router.startCall(myroom);
             }
           }
         }
       });
-    });
-    socket.on('disconnect', function() {
+    };
+    router.onCallLocalStream = function(stream) {
+      var video = document.querySelector('#local-video');
+      video.srcObject = stream;
+    };
+    router.onCallRemoteStream = function(id, stream) {
+      var video = document.querySelector('#remote-video');
+      video.srcObject = stream;
+    };
+    router.onCallClosed = function(id) {
+      var video = document.querySelector('#local-video');
+      video.srcObject = null;
+      var remote_video = document.querySelector('#remote-video');
+      remote_video.srcObject = null;
+    };
+    router.onDisconnect = function() {
       bootbox.alert('Disconnected from server', function() {
         window.location.reload();
       });
-    });
+    };
 
-    function startVideoCall() {
-      var rem_id;
-      qiscuscall = new QiscusCall('<?= $CALL_SDK_APP_ID; ?>', '<?= $CALL_SDK_APP_TOKEN; ?>');
-      qiscuscall.initCall(myuser, myroom, false, true);
-      qiscuscall.onLocalStream = function(stream) {
-        var video = document.querySelector('#local-video');
-        video.srcObject = stream;
-        str = stream;
-      };
-      qiscuscall.onRemoteStream = function(id, stream) {
-        rem_id = id;
-        var video = document.querySelector('#remote-video');
-        video.srcObject = stream;
-      };
-      qiscuscall.onPeerClosed = function(id) {
-        if (id == rem_id) {
-          var video = document.querySelector('#local-video');
-          video.srcObject = null;
-          var remote_video = document.querySelector('#remote-video');
-          remote_video.srcObject = null;
-          qiscuscall = null;
-        }
-      };
-    }
+    var loop = 0;
+    var ringing = new Audio('/assets/ringtone/ringtone.mp3');
+    ringing.addEventListener('ended', function() {
+      if (loop++ < 5) {
+        ringing.play();
+      } else {
+        //
+      }
+    });
   });
   </script>
 </body>
