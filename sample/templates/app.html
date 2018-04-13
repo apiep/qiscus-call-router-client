@@ -158,6 +158,15 @@
         //
       }
     });
+
+    window.addEventListener('beforeunload', function (event) {
+      if (Recording.isBusy()) {
+        if (event) {
+          event.returnValue = "There are still on going upload inprogress, do you want to cancel it?";
+        }
+        return "There are still on going upload inprogress, do you want to cancel it?";
+      }
+    });
   });
   </script>
 </body>
