@@ -19,7 +19,7 @@ $app->get('/', function($request, $response, $args) {
   ]);
 });
 
-$app->post('/app', function($request, $response, $args) {
+$app->get('/app', function($request, $response, $args) {
   $params = $request->getParams();
   $client = new \GuzzleHttp\Client();
   $res = $client->request('POST', 'https://rtc-api.qiscus.com/router/auth/login_or_register', [
