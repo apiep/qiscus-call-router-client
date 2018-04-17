@@ -11,6 +11,7 @@
     this.uploading = null;
     this.doneUploading = [];
     this.currentRecord = null;
+    this.isRecording = false;
     window.setInterval(function () {
       this.watch();
     }.bind(this), 500);
@@ -25,9 +26,12 @@
     this.uploading = this.uploadQueues.splice(0, 1).pop()
     var filename = `recording-${this.uploading.id}.webm`;
     var file = new File([this.uploading.blob], filename);
+    this.onUpdate();
     this.upload(file)
       .then(() => {
+        this.doneUploading.push(this.uploading);
         this.uploading = null;
+        this.onUpdate();
       })
       .catch((error) => {
         console.error('error when uploading', error);
@@ -37,6 +41,7 @@
     var record = RecordRTC(stream, config);
     this.currentRecord = record;
     this.currentRecord.startRecording();
+    this.isRecording = true;
     return this.currentRecord;
   };
   CRecording.prototype.upload = function (file) {
@@ -58,22 +63,22 @@
     });
   };
 
-  CRecording.prototype.onRemoteStream = function (stream) {
+  CRecording.prototype.remoteStream = function (stream) {
     this.record(stream);
   };
-  CRecording.prototype.onClose = function () {
+  CRecording.prototype.close = function () {
     if (this.currentRecord == null) return;
     var id = (new Date()).getTime();
     this.currentRecord.stopRecording(function () {
       var blob = this.currentRecord.getBlob();
-      console.log('blob', blob);
-      console.log('_blob', this.currentRecord.blob);
       this.uploadQueues.push({
         id: id,
         data: blob,
       });
+      this.isRecording = false;
     }.bind(this));
   };
+  CRecording.prototype.onUpdate = function () {};
 
   window.Recording = window.Recording || new CRecording();
 })();

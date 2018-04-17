@@ -53,11 +53,28 @@
           <ul class="list-group" id="contact-list">
           </ul>
         </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="title">Upload Queue</div>
+          </div>
+          <div class="panel-body">
+            <ul id="pendingUploadList" class="pull-right list-unstyled"></ul>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="title">Done uploading</div>
+          </div>
+          <div class="panel-body">
+            <ul id="doneUploadingList" class="pull-right list-unstyled"></ul>
+          </div>
+        </div>
       </div>
       <div class="col-md-4 col-sm-6 col-xs-12">
         <div class="panel panel-default">
           <div class="panel-heading">
             <span class="title">Client Video</span>
+            <button class="record-btn hidden">Record</button>
           </div>
           <video id="remote-video" autoplay></video>
           <video id="local-video" style="display:none;" autoplay></video>
@@ -92,6 +109,7 @@
   var myname = null;
   var myroom = null;
   var router = null;
+  var remoteStream = null;
 
   $(function() {
     router = new QiscusCallRouter('<?= $API_KEY; ?>');
@@ -134,19 +152,46 @@
     router.onCallRemoteStream = function(id, stream) {
       var video = document.querySelector('#remote-video');
       video.srcObject = stream;
-      Recording.onRemoteStream(stream);
+      remoteStream = stream;
+      $('.record-btn').removeClass('hidden');
+      // Recording.onRemoteStream(stream);
     };
     router.onCallClosed = function(id) {
       var video = document.querySelector('#local-video');
       video.srcObject = null;
       var remote_video = document.querySelector('#remote-video');
       remote_video.srcObject = null;
-      Recording.onClose();
+      Recording.close();
     };
     router.onDisconnect = function() {
       bootbox.alert('Disconnected from server', function() {
         window.location.reload();
       });
+    };
+
+    var $pendingUploadList = $('#pendingUploadList');
+    var $doneUploadingList = $('#doneUploadingList');
+    Recording.onUpdate = function () {
+      $pendingUploadList.empty();
+      $doneUploadingList.empty();
+      Recording.uploadQueues
+        .map(function (item) {
+          var li = document.createElement('li');
+          li.innerText = item.id;
+          return li;
+        })
+        .forEach(function (item) {
+          $pendingUploadList.append(item);
+        });
+      Recording.doneUploading
+        .map(function (item) {
+          var li = document.createElement('li');
+          li.innerText = item.id;
+          return li;
+        })
+        .forEach(function (item) {
+          $doneUploadingList.append(item);
+        });
     };
 
     var loop = 0;
@@ -166,6 +211,21 @@
         }
         return "There are still on going upload inprogress, do you want to cancel it?";
       }
+    });
+
+
+    $('.record-btn').on('click', function (event) {
+      var $this = $(this);
+      if ($this.hasClass('recording')) {
+        $this.removeClass('recording');
+        $this.text('Record');
+        Recording.close();
+      } else {
+        $this.addClass('recording');
+        $this.text('Stop');
+        Recording.record(remoteStream);
+      }
+      return false;
     });
   });
   </script>
