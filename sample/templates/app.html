@@ -186,7 +186,11 @@
       Recording.doneUploading
         .map(function (item) {
           var li = document.createElement('li');
-          li.innerText = item.id;
+          var anchor = document.createElement('a');
+          anchor.setAttribute('href', item.url);
+          anchor.setAttribute('target', '_blank');
+          anchor.innerText = item.id;
+          li.appendChild(anchor);
           return li;
         })
         .forEach(function (item) {

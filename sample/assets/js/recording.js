@@ -3,7 +3,7 @@
 
   var config = {
     recorderType: MediaStreamRecorder,
-    mimeType: 'video/webm\;codecs=vp8'
+    mimeType: 'video/webm\;codecs=vp9'
   };
 
   function CRecording () {
@@ -25,11 +25,15 @@
     if (this.uploadQueues.length <= 0 || this.uploading != null) return;
     this.uploading = this.uploadQueues.splice(0, 1).pop()
     var filename = `recording-${this.uploading.id}.webm`;
-    var file = new File([this.uploading.blob], filename);
+    var file = new File([this.uploading.data], filename);
     this.onUpdate();
     this.upload(file)
-      .then(() => {
-        this.doneUploading.push(this.uploading);
+      .then((resp) => {
+        console.log('resp', resp);
+        var uploadedFile = Object.assign({}, this.uploading, {
+          url: resp.results.file.url
+        });
+        this.doneUploading.push(uploadedFile);
         this.uploading = null;
         this.onUpdate();
       })
